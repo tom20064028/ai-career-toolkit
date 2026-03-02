@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 
 export default function CopilotPage() {
 
+    const [analysis, setAnalysis] = useState<any>(null);
+    const [interview, setInterview] = useState<any>(null);
+
     useEffect(() => {
         const form = document.querySelector("form");
         form?.addEventListener("submit", async (e) => {
@@ -16,13 +19,30 @@ export default function CopilotPage() {
                 method: "POST",
                 body: JSON.stringify({ jd, resume }),
             })
-            const analyzeData = await res1.json();
             const res2 = await fetch("/api/interview", {
                 method: "POST",
                 body: JSON.stringify({ jd }),
             })
-            const interviewData = await res2.json();
-            console.log({ analyzeData, interviewData });
+            try {
+                const analysisResult = await res1.json()
+                setAnalysis(JSON.parse(analysisResult.raw));
+                console.log(analysisResult)
+            } catch {
+                setAnalysis({
+                    score: 0,
+                    missing_skills: [],
+                    rewrite_suggestions: ["Invalid JSON from model"]
+                })
+            }
+            try {
+                const interviewResult = await res2.json()
+                setInterview(JSON.parse(interviewResult.raw));
+                console.log(interviewResult)
+            } catch {
+                setInterview({
+                    questions: [],
+                })
+            }
 
         });
     }, []);
@@ -56,7 +76,30 @@ export default function CopilotPage() {
                         </div>
                     </form>
                     <div style={{ marginTop: 20 }}>
-                    {/* results will appear here */}
+                    {analysis && (
+                        <div>
+                            <h3>Match Score</h3>
+                            <p>{analysis.score}</p>
+
+                            <h3>Missing Skills</h3>
+                            <ul>
+                                {analysis.missing_skills?.map((s:any, i:any) => (
+                                    <li key={i}>{s}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {interview && (
+                        <div>
+                            <h3>Interview Questions</h3>
+                            <ul>
+                                {interview.questions?.map((q:any, i:any) => (
+                                    <li key={i}>{q}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                     </div>
                 </div>
             </main>
