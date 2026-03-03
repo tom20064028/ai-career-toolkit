@@ -87,34 +87,34 @@ export default function Home() {
           {result && (
             <div className="flex flex-col gap-2 mt-4">
               <h2 className="text-2xl font-bold">Result</h2>         
-                <div className="mt-4">
-                  <h3 className="text-lg font-semibold">Score</h3>
-                  <p>{result.score}</p>
-                  {result.missing_skills?.length > 0 && (
-                    <>
-                      <h3 className="text-lg font-semibold mt-4">Missing skills</h3>
-                      <ul>
-                        {result.missing_skills?.map((s: string, i: number) => (
-                          <li className="list-disc list-inside" key={i}>{s}</li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold">Score</h3>
+                <p>{result.score}</p>
+                {result.missing_skills?.length > 0 && (
+                  <>
+                    <h3 className="text-lg font-semibold mt-4">Missing skills</h3>
+                    <ul>
+                      {result.missing_skills?.map((s: string, i: number) => (
+                        <li className="list-disc list-inside" key={i}>{s}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
 
-                  {result.rewrite_suggestions?.length > 0 && (
-                    <>
-                      <h3 className="text-lg font-semibold mt-4">Rewrite suggestions</h3>
-                      <ul>
-                        {result.rewrite_suggestions?.map((s: string, i: number) => (
-                          <li className="list-disc list-inside" key={i}>{s}</li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
+                {result.rewrite_suggestions?.length > 0 && (
+                  <>
+                    <h3 className="text-lg font-semibold mt-4">Rewrite suggestions</h3>
+                    <ul>
+                      {result.rewrite_suggestions?.map((s: string, i: number) => (
+                        <li className="list-disc list-inside" key={i}>{s}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
 
-                  <button onClick={() => setShowRaw(!showRaw)} className="text-sm font-semibold mt-4 text-center text-gray-500 block w-full">Raw JSON (debug) <FontAwesomeIcon icon={faAngleDown} className={`ml-2 transition-all duration-500 ${showRaw ? "rotate-180" : ""}`}/></button>
-                  <pre className={`whitespace-break-spaces text-sm text-gray-500 overflow-hidden transition-all duration-500 ease-in-out ${showRaw ? "h-96" : "h-0"}`}>{JSON.stringify(result, null, 2)}</pre>
-                </div>
+                <button onClick={() => setShowRaw(!showRaw)} className="text-sm font-semibold mt-4 text-center text-gray-500 block w-full">Raw JSON (debug) <FontAwesomeIcon icon={faAngleDown} className={`ml-2 transition-all duration-500 ${showRaw ? "rotate-180" : ""}`}/></button>
+                <pre className={`whitespace-break-spaces text-sm text-gray-500 overflow-hidden transition-all duration-500 ease-in-out ${showRaw ? "h-96" : "h-0"}`}>{JSON.stringify(result, null, 2)}</pre>
+              </div>
             </div>
           )}
         </div>

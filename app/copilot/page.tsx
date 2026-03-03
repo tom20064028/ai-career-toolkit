@@ -6,44 +6,48 @@ export default function CopilotPage() {
 
     const [analysis, setAnalysis] = useState<any>(null);
     const [interview, setInterview] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const form = document.querySelector("form");
         form?.addEventListener("submit", async (e) => {
             e.preventDefault();
-            // setLoading(true);
-            const formData = new FormData(form);
-            const jd = formData.get("jd");
-            const resume = formData.get("resume");
-            const res1 = await fetch("/api/analyze", {
-                method: "POST",
-                body: JSON.stringify({ jd, resume }),
-            })
-            const res2 = await fetch("/api/interview", {
-                method: "POST",
-                body: JSON.stringify({ jd }),
-            })
+            setLoading(true);
             try {
-                const analysisResult = await res1.json()
-                setAnalysis(JSON.parse(analysisResult.raw));
-                console.log(analysisResult)
-            } catch {
-                setAnalysis({
-                    score: 0,
-                    missing_skills: [],
-                    rewrite_suggestions: ["Invalid JSON from model"]
+                const formData = new FormData(form);
+                const jd = formData.get("jd");
+                const resume = formData.get("resume");
+                const res1 = await fetch("/api/analyze", {
+                    method: "POST",
+                    body: JSON.stringify({ jd, resume }),
                 })
-            }
-            try {
-                const interviewResult = await res2.json()
-                setInterview(JSON.parse(interviewResult.raw));
-                console.log(interviewResult)
-            } catch {
-                setInterview({
-                    questions: [],
+                const res2 = await fetch("/api/interview", {
+                    method: "POST",
+                    body: JSON.stringify({ jd }),
                 })
+                try {
+                    const analysisResult = await res1.json()
+                    setAnalysis(JSON.parse(analysisResult.raw));
+                    console.log(analysisResult)
+                } catch {
+                    setAnalysis({
+                        score: 0,
+                        missing_skills: [],
+                        rewrite_suggestions: ["Invalid JSON from model"]
+                    })
+                }
+                try {
+                    const interviewResult = await res2.json()
+                    setInterview(JSON.parse(interviewResult.raw));
+                    console.log(interviewResult)
+                } catch {
+                    setInterview({
+                        questions: [],
+                    })
+                }
+            } finally {
+                setLoading(false);
             }
-
         });
     }, []);
 
@@ -71,36 +75,46 @@ export default function CopilotPage() {
                                 placeholder="Paste your resume" className="w-full border-2 border-gray-300 rounded-md p-2" rows={10} 
                             />
                         </div>
-                        <div className="grid grid-cols-2 gap-2 w-full">
-                            <button type="submit" className={`bg-blue-500 text-white px-4 py-2 rounded-md`}>Analyze Application</button>
+                        <div className="grid w-full">
+                            <button type="submit" disabled={loading} className={`bg-blue-500 text-white px-4 py-2 rounded-md`}>{loading ? "Analyzing..." : "Analyze Application"}</button>
                         </div>
                     </form>
-                    <div style={{ marginTop: 20 }}>
-                    {analysis && (
-                        <div>
-                            <h3>Match Score</h3>
-                            <p>{analysis.score}</p>
+                    {analysis && interview && (
+                        <div className="flex flex-col gap-2 mt-4">
+                            <h2 className="text-2xl font-bold">Result</h2> 
+                            {analysis && (
+                                <div className="mt-4">
+                                    <h3 className="text-lg font-semibold">Match Score</h3>
+                                    <p>{analysis.score}</p>
+                                    {analysis.missing_skills?.length > 0 && (
+                                        <>
+                                            <h3 className="mt-4 underline">Missing Skills</h3>
+                                            <ul>
+                                                {analysis.missing_skills?.map((s:any, i:any) => (
+                                                    <li className="list-disc list-inside" key={i}>{s}</li>
+                                                ))}
+                                            </ul>
+                                        </>
+                                    )}
+                                </div>
+                            )}
 
-                            <h3>Missing Skills</h3>
-                            <ul>
-                                {analysis.missing_skills?.map((s:any, i:any) => (
-                                    <li key={i}>{s}</li>
-                                ))}
-                            </ul>
+                            {interview && (
+                                <div className="mt-4">    
+                                    {interview.questions?.length > 0 && (
+                                        <>
+                                            <h3 className="text-lg font-semibold">Interview Questions</h3>
+                                            <ul>
+                                                {interview.questions?.map((q:any, i:any) => (
+                                                    <li className="list-disc list-inside" key={i}>{q}</li>
+                                                ))}
+                                            </ul>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
-
-                    {interview && (
-                        <div>
-                            <h3>Interview Questions</h3>
-                            <ul>
-                                {interview.questions?.map((q:any, i:any) => (
-                                    <li key={i}>{q}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-                    </div>
                 </div>
             </main>
         </div>
