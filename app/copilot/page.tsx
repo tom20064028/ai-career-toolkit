@@ -2,10 +2,20 @@
 
 import { useEffect, useState } from "react";
 
+type Analysis = {
+    score: number;
+    missing_skills: string[];
+    rewrite_suggestions: string[];
+};
+
+type Interview = {
+    questions: string[];
+};
+
 export default function CopilotPage() {
 
-    const [analysis, setAnalysis] = useState<any>(null);
-    const [interview, setInterview] = useState<any>(null);
+    const [analysis, setAnalysis] = useState<Analysis | null>(null);
+    const [interview, setInterview] = useState<Interview | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -21,25 +31,26 @@ export default function CopilotPage() {
                     method: "POST",
                     body: JSON.stringify({ jd, resume }),
                 })
-                const res2 = await fetch("/api/interview", {
-                    method: "POST",
-                    body: JSON.stringify({ jd }),
-                })
+                let nextAnalysis: Analysis = { score: 0, missing_skills: [], rewrite_suggestions: [] };
                 try {
                     const analysisResult = await res1.json()
-                    setAnalysis(JSON.parse(analysisResult.raw));
-                    console.log(analysisResult)
+                    nextAnalysis = JSON.parse(analysisResult.raw) as Analysis;
+                    setAnalysis(nextAnalysis);
                 } catch {
-                    setAnalysis({
+                    nextAnalysis = {
                         score: 0,
                         missing_skills: [],
                         rewrite_suggestions: ["Invalid JSON from model"]
-                    })
+                    };
+                    setAnalysis(nextAnalysis);
                 }
+                const res2 = await fetch("/api/interview-contextual", {
+                    method: "POST",
+                    body: JSON.stringify({ jd, resume, missing_skills: nextAnalysis.missing_skills }),
+                })
                 try {
                     const interviewResult = await res2.json()
-                    setInterview(JSON.parse(interviewResult.raw));
-                    console.log(interviewResult)
+                    setInterview(JSON.parse(interviewResult.raw) as Interview);
                 } catch {
                     setInterview({
                         questions: [],
@@ -90,7 +101,7 @@ export default function CopilotPage() {
                                         <>
                                             <h3 className="mt-4 underline">Missing Skills</h3>
                                             <ul>
-                                                {analysis.missing_skills?.map((s:any, i:any) => (
+                                                {analysis.missing_skills?.map((s, i) => (
                                                     <li className="list-disc list-inside" key={i}>{s}</li>
                                                 ))}
                                             </ul>
@@ -105,7 +116,7 @@ export default function CopilotPage() {
                                         <>
                                             <h3 className="text-lg font-semibold">Interview Questions</h3>
                                             <ul>
-                                                {interview.questions?.map((q:any, i:any) => (
+                                                {interview.questions?.map((q, i) => (
                                                     <li className="list-disc list-inside" key={i}>{q}</li>
                                                 ))}
                                             </ul>

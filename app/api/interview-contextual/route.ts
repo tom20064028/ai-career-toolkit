@@ -13,17 +13,17 @@ const client = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const { jd } = await req.json();
+    const { jd, resume, missing_skills } = await req.json();
 
     const completion = await client.chat.completions.create({
       model: "openai/gpt-4o-mini", // 例子：你可換其他 OpenRouter model
       messages: [
-        { role: "system", content: 'You are a technical interviewer.\n\nReturn ONLY valid JSON in this exact structure:\n\n{"questions": string[]}\n\nDo not add any explanation or extra keys.' },
+        { role: "system", content: 'You are a technical interviewer.\n\nGiven:\n\n- Job description\n\n- Candidate resume\n\n- Missing skills identified\n\nGenerate 5 interview questions that specifically probe the candidate’s weak or missing areas.\nReturn ONLY JSON:\n{\n"questions": string[]\n}' },
         {
           role: "user",
           content:
-            `JD:\n${jd}\n\n` +
-            `Given this job description, generate 5 realistic interview questions a candidate might be asked.\n` +
+            `JD:\n${jd}\n\nResume:\n${resume} \n\nMissing skills:\n${missing_skills} \n\n` +
+            `Generate 5 interview questions that specifically probe the candidate’s weak or missing areas.\n` +
             `Return ONLY JSON:\n` +
             `{"questions": string[]}`
         },
