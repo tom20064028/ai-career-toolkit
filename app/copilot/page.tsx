@@ -16,6 +16,7 @@ export default function CopilotPage() {
 
     const [analysis, setAnalysis] = useState<Analysis | null>(null);
     const [interview, setInterview] = useState<Interview | null>(null);
+    const [interviewError, setInteriewError] = useState(false)
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -55,6 +56,7 @@ export default function CopilotPage() {
                     setInterview({
                         questions: [],
                     })
+                    setInteriewError(true)
                 }
             } finally {
                 setLoading(false);
@@ -110,7 +112,7 @@ export default function CopilotPage() {
                                 </div>
                             )}
 
-                            {interview && (
+                            {interview && !interviewError && (
                                 <div className="mt-4">    
                                     {interview.questions?.length > 0 && (
                                         <>
@@ -123,6 +125,9 @@ export default function CopilotPage() {
                                         </>
                                     )}
                                 </div>
+                            )}
+                            {interviewError && (
+                                <p>Failed to generate contextual interview questions.</p>
                             )}
                         </div>
                     )}
