@@ -11,35 +11,37 @@ export default function InterviewPage() {
     const [result, setResult] = useState<any>(null)
     const [loading, setLoading] = useState(false);
     const [stage, setStage] = useState(0)
+    const [question, setQuestion] = useState("")
 
     useEffect(() => {
         const jdForm = document.querySelector("#jd-form");
         jdForm?.addEventListener("submit", (e) => {
           e.preventDefault();
-          setStage(1)
-        //   setLoading(true);
-        //   const formData = new FormData(form);
-        //   const jd = formData.get("jd");
-        //   fetch("/api/interview", {
-        //     method: "POST",
-        //     body: JSON.stringify({ jd }),
-        //   }).then(res => res.json()).then(data => {
-        //     let parsed;
+          setLoading(true);
+          const formData = new FormData(jdForm as HTMLFormElement);
+          const jd = formData.get("jd");
+          fetch("/api/interview-start", {
+            method: "POST",
+            body: JSON.stringify({ jd }),
+          }).then(res => res.json()).then(data => {
+            let parsed;
     
-        //     try {
-        //       parsed = JSON.parse(data.raw);
-        //     } catch {
-        //       parsed = {
-        //         questions: []
-        //       };
-        //     }
-        //     console.log(parsed)
-        //     setResult(parsed);
-        //     setLoading(false);
-        //   }).catch(err => {
-        //     console.error(err);
-        //     setLoading(false);
-        //   });
+            try {
+              parsed = JSON.parse(data.raw);
+            } catch {
+              parsed = {
+                question: ""
+              };
+            }
+            console.log(parsed)
+            setQuestion(parsed.question);
+            setLoading(false);
+          }).catch(err => {
+            console.error(err);
+          }).finally(() => {
+            setLoading(false);
+            setStage(1)
+          }) 
         });
     }, []);
 
@@ -88,7 +90,7 @@ export default function InterviewPage() {
                     )}
                     { stage === 1 && (
                         <form className="flex flex-col gap-4">
-                            <h2 className="text-xl mt-8">How are you?</h2>
+                            <h2 className="text-xl mt-8">{question}</h2>
                             <div className="flex flex-col gap-2 mt-8">
                                 <label htmlFor="answer">Answer</label>
                                 <textarea placeholder="Input your answer" name="answer" id="answer" className="w-full border-2 border-gray-300 rounded-md p-2" rows={10} required />
