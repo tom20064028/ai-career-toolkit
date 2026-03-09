@@ -12,6 +12,9 @@ export default function InterviewPage() {
     const [loading, setLoading] = useState(false);
     const [stage, setStage] = useState(0)
     const [question, setQuestion] = useState("")
+    const [answer, setAnswer] = useState("")
+    const [score, setScore] = useState(0)
+    const [feedback, setFeedback] = useState("")
 
     useEffect(() => {
         const jdForm = document.querySelector("#jd-form");
@@ -44,6 +47,39 @@ export default function InterviewPage() {
           }) 
         });
     }, []);
+
+    const submitAnswer = () => {
+        const interviewForm = document.querySelector("#interview-form");
+        setLoading(true);
+        const formData = new FormData(interviewForm as HTMLFormElement);
+        const answer = formData.get("answer");
+        fetch("/api/interview-turn", {
+            method: "POST",
+            body: JSON.stringify({ question, answer }),
+        }).then(res => res.json()).then(data => {
+            let parsed;
+    
+            try {
+            parsed = JSON.parse(data.raw);
+            } catch {
+            parsed = {
+                score: 0,
+                feedback: "",
+                next_question: ""
+            };
+            }
+            setScore(parsed.score)
+            setFeedback(parsed.feedback)
+            setQuestion(parsed.next_question);
+            setLoading(false);
+        }).catch(err => {
+            console.error(err);
+        }).finally(() => {
+            setLoading(false);
+            setAnswer("")
+
+        }) 
+    }
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -89,14 +125,31 @@ export default function InterviewPage() {
                         </form>
                     )}
                     { stage === 1 && (
-                        <form className="flex flex-col gap-4">
-                            <h2 className="text-xl mt-8">{question}</h2>
-                            <div className="flex flex-col gap-2 mt-8">
-                                <label htmlFor="answer">Answer</label>
-                                <textarea placeholder="Input your answer" name="answer" id="answer" className="w-full border-2 border-gray-300 rounded-md p-2" rows={10} required />
+                        <>
+                            <div id="last-question">
+                                { !!score && 
+                                    <div className="mt-4">
+                                        <h3 className="text-lg font-semibold">Score</h3>
+                                        <p>{score}</p>
+                                    </div>
+                                }
+                                { !!feedback && 
+                                    <div className="mt-4">
+                                        <h3 className="text-lg font-semibold">Feedback</h3>
+                                        <p>{feedback}</p>
+                                    </div>
+                                }
                             </div>
-                            <button className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer">Answer</button>
-                        </form>
+                           
+                            <form id="interview-form" className="flex flex-col gap-4">
+                                <h2 className="text-xl mt-8">{question}</h2>
+                                <div className="flex flex-col gap-2 mt-8">
+                                    <label htmlFor="answer">Answer</label>
+                                    <textarea placeholder="Input your answer" name="answer" id="answer" className="w-full border-2 border-gray-300 rounded-md p-2" rows={10} required value={answer} onChange={(e) => setAnswer(e.target.value)} />
+                                </div>
+                                <button type="button" onClick={() => submitAnswer()} className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer">Answer</button>
+                            </form>
+                        </>
                     )}
                 </div>
             </main>
