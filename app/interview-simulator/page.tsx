@@ -7,6 +7,13 @@ import { faAngleDown } from "@fortawesome/free-solid-svg-icons";
 export default function InterviewPage() {
     const exampleJD = `We are looking for a frontend developer with React, TypeScript, and API experience...`;
 
+    type HistoryItem = {
+        question: string;
+        answer: string;
+        score: number;
+        feedback: string;
+    };
+
     const [jd, setJd] = useState("")
     const [result, setResult] = useState<any>(null)
     const [loading, setLoading] = useState(false);
@@ -15,6 +22,7 @@ export default function InterviewPage() {
     const [answer, setAnswer] = useState("")
     const [score, setScore] = useState(0)
     const [feedback, setFeedback] = useState("")
+    const [history, setHistory] = useState<HistoryItem[]>([])
 
     useEffect(() => {
         const jdForm = document.querySelector("#jd-form");
@@ -55,7 +63,7 @@ export default function InterviewPage() {
         const answer = formData.get("answer");
         fetch("/api/interview-turn", {
             method: "POST",
-            body: JSON.stringify({ question, answer }),
+            body: JSON.stringify({ question, answer, history }),
         }).then(res => res.json()).then(data => {
             let parsed;
     
@@ -68,6 +76,15 @@ export default function InterviewPage() {
                 next_question: ""
             };
             }
+            setHistory(prev => [
+                ...prev,
+                {
+                    question,
+                    answer: String(answer ?? ""),
+                    score: parsed.score,
+                    feedback: parsed.feedback,
+                }
+            ])
             setScore(parsed.score)
             setFeedback(parsed.feedback)
             setQuestion(parsed.next_question);
