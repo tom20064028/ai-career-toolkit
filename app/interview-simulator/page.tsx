@@ -4,7 +4,7 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faAngleDown } from "@fortawesome/free-solid-svg-icons";
 
-export default function InterviewPage() {
+export default function InterviewSimulatorPage() {
     const exampleJD = `We are looking for a frontend developer with React, TypeScript, and API experience...`;
 
     type HistoryItem = {
