@@ -31,8 +31,11 @@ export default function Home() {
                     <div>Practice technical interviews</div>
                 </li>
                 <li className="mb-4">
-                    <a className="underline" href="/coding-interview">Coding Interview Judge</a>
-                    <div>Evaluate coding answers</div>
+                    <a className="underline">Coding Interview Judge</a>
+                    <div>
+                      Evaluate coding interview answers using AI.<br />
+                      🚧 Coming soon
+                    </div>
                 </li>
             </ul>
           </div>
