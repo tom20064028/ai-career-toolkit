@@ -16,28 +16,38 @@ export default function Home() {
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl font-bold">AI Career Toolkit</h1>
             <p className="text-lg text-gray-500">
-                Prepare for technical interviews using AI tools.
+              AI-powered tools to help developers prepare for technical interviews.<br/>
+              Practice interviews, analyze resumes, and evaluate coding answers using LLMs.
             </p>
-            <h3 className="text-2xl font-bold mt-8">
+
+            <h3 className="text-2xl font-bold mt-4">
                 Tools
             </h3>
-            <ul>
-                <li className="mb-4">
-                    <a className="underline" href="/jd-resume-analyzer">JD Resume Analyzer</a>
-                    <div>Analyze resume against job description</div>
-                </li>
-                <li className="mb-4">
-                    <a className="underline" href="/interview-simulator">Interview Simulator</a>
-                    <div>Practice technical interviews</div>
-                </li>
-                <li className="mb-4">
-                    <a className="underline">Coding Interview Judge</a>
-                    <div>
-                      Evaluate coding interview answers using AI.<br />
-                      🚧 Coming soon
-                    </div>
-                </li>
-            </ul>
+            <div className="grid grid-cols-3 gap-3 mt-2">
+              <a href="/jd-resume-analyzer" className="card">
+                <h4 className="text-xl font-bold">JD Resume Analyzer</h4>
+                <div className="mt-4">Analyze how well your resume matches a job description.<br/>Identify missing skills and generate interview questions.</div>
+              </a>
+              <a href="/interview-simulator" className="card">
+                <h4 className="text-xl font-bold">Interview Simulator</h4>
+                <div className="mt-4">
+                  Practice technical interviews with an AI interviewer.<br/>
+                  Receive feedback, follow-up questions, and a final evaluation.
+                </div>
+              </a>
+              <a className="card">
+              <h4 className="text-xl font-bold">Coding Interview Judge</h4>
+                <div className="mt-4">Evaluate coding interview answers using AI reasoning.<br /><br />
+                🚧 Coming soon</div>
+              </a>
+            </div>
+
+            <h3 className="text-2xl font-bold mt-4">
+              About this project
+            </h3>
+            <p className="text-lg text-gray-500 mt-2">
+              AI Career Toolkit is a collection of AI-powered developer tools built with Next.js and LLM APIs.<br/>The goal is to explore how AI can assist developers in preparing for technical intervi
+            </p>
           </div>
         </div>
       </main>
