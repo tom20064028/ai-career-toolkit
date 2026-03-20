@@ -13,17 +13,28 @@ const client = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const { problem, solution } = await req.json();
+    const { mode, problem, solution, feedback, followup_answer } = await req.json();
+    let prompt = {
+        server: "",
+        client: ""
+    }
 
+    if (mode === "initial") {
+        prompt = {
+            server: 'You are a senior software engineer conducting a coding interview.\n\nBe strict in scoring.\n\nA score of 10 should only be given if:\n- The solution is correct\n- Edge cases are clearly handled\n- The explanation is thorough\n- The candidate demonstrates deep understanding\n\nMost answers should fall between 6-8.\n\nGiven:\n- Coding problem\n- Candidate solution\n\nEvaluate the solution.\n\nReturn ONLY JSON:\n\n{\n"score": number (0-10),\n"correctness": string,\n"bugs": string[],\n"improvements": string[],\n"followup": string\n}\n\nThe follow-up question should:\n- Be specific to the candidate\'s solution\n- Focus on weaknesses or missing aspects\n- Avoid generic questions like asking only for time/space complexity\n- Ask probing questions that test deeper understanding',
+            client: `Coding problem:\n${problem}\n\nCandidate solution:\n${solution}`
+        }
+    } else {
+        prompt = {
+            server: 'You are continuing a coding interview.\n\nGiven:\n- Original problem\n- Candidate solution\n- Previous feedback\n- Candidate follow-up answer\n\nEvaluate improvement and give updated feedback.\n\nReturn JSON:\n{\n"score": number,\n"improvement": string,\n"remaining_issues": string[]\n}',
+            client: `Original problem:\n${problem}\n\nCandidate solution:\n${solution}\n\nPrevious feedback:\n${feedback}\n\nCandidate follow-up answer:\n${followup_answer}`
+        }
+    }
     const completion = await client.chat.completions.create({
       model: "openai/gpt-4o-mini", // 例子：你可換其他 OpenRouter model
       messages: [
-        { role: "system", content: 'You are a senior software engineer conducting a coding interview.\n\nGiven:\n- Coding problem\n- Candidate solution\n\nEvaluate the solution.\n\nReturn ONLY JSON:\n\n{\n"score": number (0-10),\n"correctness": string,\n"bugs": string[],\n"improvements": string[],\n"followup": string\n}' },
-        {
-          role: "user",
-          content:
-            `Coding problem:\n${problem}\n\nCandidate solution:\n${solution}`
-        },
+        { role: "system", content: prompt.server },
+        { role: "user", content: prompt.client },
       ],
       temperature: 0.2,
     });
