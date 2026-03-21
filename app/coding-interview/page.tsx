@@ -20,6 +20,9 @@ type Stage = "initial" | "followup"
 
 export default function CodingInterviewPage() {
 
+    const [problem, setProblem] = useState("")
+    const [solution, setSolution] = useState("")
+
     const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
 
     const [secondEvaluation, setSecondEvaluation] = useState<SecondEvaluation | null>(null);
@@ -84,6 +87,11 @@ export default function CodingInterviewPage() {
         }
     }
 
+    const fillExample = () => {
+        setProblem("Reverse a linked list.")
+        setSolution("def reverse(head):\nprev = None\ncurrent = head\nwhile current:\ncurrent.next = prev\ncurrent = current.next\nreturn prev")
+    }
+
     return (
 
         <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -99,21 +107,23 @@ export default function CodingInterviewPage() {
                         <div className="flex flex-col gap-2">
                             <label htmlFor="problem">Coding Problem</label>
                             <textarea
-                                name="problem" id="problem" 
+                                name="problem" id="problem" value={problem} onChange={(e) => setProblem(e.target.value)}
                                 placeholder="Paste Coding Problem" className="w-full border-2 border-gray-300 rounded-md p-2" rows={10} 
                             />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label htmlFor="solution">Candidate Solution</label>
                             <textarea
-                                name="solution" id="solution"
+                                name="solution" id="solution" value={solution} onChange={(e) => setSolution(e.target.value)}
                                 placeholder="Paste your Solution" className="w-full border-2 border-gray-300 rounded-md p-2" rows={10} 
                             />
                         </div>
-                        <div className="grid w-full">
-                            { stage === "initial" && <button disabled={loading} className={`bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer`}>{"Ask Follow-up"}</button> }          
-                        </div>
-
+                        { stage === "initial" && 
+                            <div className="grid w-full grid-cols-2 gap-4">
+                                <button type="submit" disabled={loading} className={`bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer`}>{"Ask Follow-up"}</button> 
+                                <button type="button" onClick={fillExample} className={`bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer`}>{"Use example"}</button> 
+                            </div>
+                        }          
                         {evaluation && (
                             <div className="flex flex-col gap-2 mt-4">
                                 <h2 className="text-2xl font-bold">Result</h2> 
