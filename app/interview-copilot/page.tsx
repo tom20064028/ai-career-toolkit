@@ -96,73 +96,73 @@ export default function InterviewCopilotPage() {
     }
 
     const submitAnswer = () => {
-        const interviewForm = document.querySelector("#interview-form");
-        setLoading(true);
-        const formData = new FormData(interviewForm as HTMLFormElement);
-        const answer = formData.get("answer");
-        fetch("/api/interview-turn", {
-            method: "POST",
-            body: JSON.stringify({ question, answer, history }),
-        }).then(res => res.json()).then(data => {
-            let parsed;
+        // const interviewForm = document.querySelector("#interview-form");
+        // setLoading(true);
+        // const formData = new FormData(interviewForm as HTMLFormElement);
+        // const answer = formData.get("answer");
+        // fetch("/api/interview-turn", {
+        //     method: "POST",
+        //     body: JSON.stringify({ question, answer, history }),
+        // }).then(res => res.json()).then(data => {
+        //     let parsed;
     
-            try {
-            parsed = JSON.parse(data.raw);
-            } catch {
-            parsed = {
-                score: 0,
-                feedback: "",
-                next_question: ""
-            };
-            }
-            setHistory(prev => [
-                ...prev,
-                {
-                    question,
-                    answer: String(answer ?? ""),
-                    score: parsed.score,
-                    feedback: parsed.feedback,
-                }
-            ])
-            setScore(parsed.score)
-            setFeedback(parsed.feedback)
-            setQuestion(parsed.next_question);
-            setLoading(false);
-        }).catch(err => {
-            console.error(err);
-        }).finally(() => {
-            setLoading(false);
-            setAnswer("")
+        //     try {
+        //     parsed = JSON.parse(data.raw);
+        //     } catch {
+        //     parsed = {
+        //         score: 0,
+        //         feedback: "",
+        //         next_question: ""
+        //     };
+        //     }
+        //     setHistory(prev => [
+        //         ...prev,
+        //         {
+        //             question,
+        //             answer: String(answer ?? ""),
+        //             score: parsed.score,
+        //             feedback: parsed.feedback,
+        //         }
+        //     ])
+        //     setScore(parsed.score)
+        //     setFeedback(parsed.feedback)
+        //     setQuestion(parsed.next_question);
+        //     setLoading(false);
+        // }).catch(err => {
+        //     console.error(err);
+        // }).finally(() => {
+        //     setLoading(false);
+        //     setAnswer("")
 
-        }) 
+        // }) 
     }
 
     const finishInterview = () => {
 
-        fetch("/api/interview-finish", {
-            method: "POST",
-            body: JSON.stringify({ history }),
-        }).then(res => res.json()).then(data => {
-            let parsed;
+        // fetch("/api/interview-finish", {
+        //     method: "POST",
+        //     body: JSON.stringify({ history }),
+        // }).then(res => res.json()).then(data => {
+        //     let parsed;
     
-            try {
-                parsed = JSON.parse(data.raw);
-                setFinalResult(parsed)
-            } catch {
-                parsed = {
-                    "overall_score": 0,
-                    "summary": "",
-                    "improvement": ""
-                };
-            }
+        //     try {
+        //         parsed = JSON.parse(data.raw);
+        //         setFinalResult(parsed)
+        //     } catch {
+        //         parsed = {
+        //             "overall_score": 0,
+        //             "summary": "",
+        //             "improvement": ""
+        //         };
+        //     }
             
-            setLoading(false);
-        }).catch(err => {
-            console.error(err);
-        }).finally(() => {
-            setLoading(false);
-            setStage(2)
-        }) 
+        //     setLoading(false);
+        // }).catch(err => {
+        //     console.error(err);
+        // }).finally(() => {
+        //     setLoading(false);
+        //     setStage(2)
+        // }) 
     }
 
 
