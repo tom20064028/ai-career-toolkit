@@ -1,18 +1,21 @@
 'use client';
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter, useSearchParams } from 'next/navigation'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faAngleDown } from "@fortawesome/free-solid-svg-icons";
 
 export default function InterviewCopilotPage() {
+    const router = useRouter()
+    const searchParams = useSearchParams()
     const exampleJD = `We are looking for a frontend developer with React, TypeScript, and API experience...`;
 
-    // type HistoryItem = {
-    //     question: string;
-    //     answer: string;
-    //     score: number;
-    //     feedback: string;
-    // };
+    type HistoryItem = {
+        question: string;
+        answer: string;
+        score: number;
+        feedback: string;
+    };
 
     // type FinalResult = {
     //     overall_score: number,
@@ -31,8 +34,11 @@ export default function InterviewCopilotPage() {
     const [score, setScore] = useState(0)
     const [feedback, setFeedback] = useState("")
     const [showRaw, setShowRaw] = useState(false);
+    const [questions, setQuestions] = useState([])
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [finish, setFinish] = useState(false)
 
-    // const [history, setHistory] = useState<HistoryItem[]>([])
+    const [history, setHistory] = useState<HistoryItem[]>([])
     // const [finalResult, setFinalResult] = useState<FinalResult>()
 
     useEffect(() => {
@@ -65,76 +71,66 @@ export default function InterviewCopilotPage() {
                 setLoading(false);
             });
         });
+        const questionsParam = searchParams.get("questions")
+        if (!!questionsParam) {
+            const questions = questionsParam ? JSON.parse(decodeURIComponent(questionsParam)) : []
+            setQuestions(questions)
+        }
     }, []);
 
+    const hasNext = currentIndex < questions.length - 1
+
     const interviewStart = () => {
-        //   setLoading(true);
-        //   const formData = new FormData(jdForm as HTMLFormElement);
-        //   const jd = formData.get("jd");
-        //   fetch("/api/interview-start", {
-        //     method: "POST",
-        //     body: JSON.stringify({ jd }),
-        //   }).then(res => res.json()).then(data => {
-        //     let parsed;
-    
-        //     try {
-        //       parsed = JSON.parse(data.raw);
-        //     } catch {
-        //       parsed = {
-        //         question: ""
-        //       };
-        //     }
-        //     console.log(parsed)
-        //     setQuestion(parsed.question);
-        //     setLoading(false);
-        //   }).catch(err => {
-        //     console.error(err);
-        //   }).finally(() => {
-        //     setLoading(false);
-        //     setStage(1)
-        //   }) 
+        const questionsParam = encodeURIComponent(JSON.stringify(result.interview_questions))
+        router.push(`/interview-copilot?questions=${questionsParam}`)
     }
 
     const submitAnswer = () => {
-        // const interviewForm = document.querySelector("#interview-form");
-        // setLoading(true);
-        // const formData = new FormData(interviewForm as HTMLFormElement);
-        // const answer = formData.get("answer");
-        // fetch("/api/interview-turn", {
-        //     method: "POST",
-        //     body: JSON.stringify({ question, answer, history }),
-        // }).then(res => res.json()).then(data => {
-        //     let parsed;
+        const interviewForm = document.querySelector("#interview-form");
+        setLoading(true);
+        const formData = new FormData(interviewForm as HTMLFormElement);
+        const answer = formData.get("answer");
+        fetch("/api/interview-turn", {
+            method: "POST",
+            body: JSON.stringify({ question: questions[currentIndex], answer, history }),
+        }).then(res => res.json()).then(data => {
+            let parsed;
     
-        //     try {
-        //     parsed = JSON.parse(data.raw);
-        //     } catch {
-        //     parsed = {
-        //         score: 0,
-        //         feedback: "",
-        //         next_question: ""
-        //     };
-        //     }
-        //     setHistory(prev => [
-        //         ...prev,
-        //         {
-        //             question,
-        //             answer: String(answer ?? ""),
-        //             score: parsed.score,
-        //             feedback: parsed.feedback,
-        //         }
-        //     ])
-        //     setScore(parsed.score)
-        //     setFeedback(parsed.feedback)
-        //     setQuestion(parsed.next_question);
-        //     setLoading(false);
-        // }).catch(err => {
-        //     console.error(err);
-        // }).finally(() => {
-        //     setLoading(false);
-        //     setAnswer("")
+            try {
+                parsed = JSON.parse(data.raw);
+            } catch {
+                parsed = {
+                    score: 0,
+                    feedback: "",
+                    next_question: ""
+                };
+            }
+            setHistory(prev => [
+                ...prev,
+                {
+                    question,
+                    answer: String(answer ?? ""),
+                    score: parsed.score,
+                    feedback: parsed.feedback,
+                }
+            ])
+            setScore(parsed.score)
+            setFeedback(parsed.feedback)
+            // setQuestion(parsed.next_question);
+            if (hasNext) {
+                setCurrentIndex(currentIndex + 1)
+            } else {
+                setFinish(true)
+            }
+            
+            setLoading(false);
+        }).catch(err => {
+            console.error(err);
+        }).finally(() => {
+            setLoading(false);
+            setAnswer("")
 
-        // }) 
+        }) 
     }
 
     const finishInterview = () => {
@@ -179,7 +175,7 @@ export default function InterviewCopilotPage() {
                             Pratise your interview.
                         </p>
                     </div>
-                    { stage === 0 && (
+                    { questions.length === 0 && (
                         <form className="flex flex-col gap-4">
                             <div className="flex flex-col gap-2">
                                 <label htmlFor="jd">JD</label>
@@ -198,40 +194,43 @@ export default function InterviewCopilotPage() {
                     
                             {result && (
                                 <div className="flex flex-col gap-2 mt-4">
-                                <h2 className="text-2xl font-bold">Result</h2>         
-                                <div className="mt-4">
-                                    <h3 className="text-lg font-semibold">Match Score</h3>
-                                    <p>{result.match_score}</p>
-                                    {result.missing_skills?.length > 0 && (
-                                    <>
-                                        <h3 className="text-lg font-semibold mt-4">Missing skills</h3>
-                                        <ul>
-                                        {result.missing_skills?.map((s: string, i: number) => (
-                                            <li className="list-disc list-inside" key={i}>{s}</li>
-                                        ))}
-                                        </ul>
-                                    </>
-                                    )}
+                                    <h2 className="text-2xl font-bold">Result</h2>
+                                    <div className="mt-4">
+                                        <h3 className="text-lg font-semibold">Match Score</h3>
+                                        <p>{result.match_score}</p>
+                                        {result.missing_skills?.length > 0 && (
+                                        <>
+                                            <h3 className="text-lg font-semibold mt-4">Missing skills</h3>
+                                            <ul>
+                                            {result.missing_skills?.map((s: string, i: number) => (
+                                                <li className="list-disc list-inside" key={i}>{s}</li>
+                                            ))}
+                                            </ul>
+                                        </>
+                                        )}
 
-                                    {result.interview_questions?.length > 0 && (
-                                    <>
-                                        <h3 className="text-lg font-semibold mt-4">Interview Questions</h3>
-                                        <ul>
-                                        {result.interview_questions?.map((s: string, i: number) => (
-                                            <li className="list-disc list-inside" key={i}>{s}</li>
-                                        ))}
-                                        </ul>
-                                    </>
-                                    )}
+                                        {result.interview_questions?.length > 0 && (
+                                        <>
+                                            <h3 className="text-lg font-semibold mt-4">Interview Questions</h3>
+                                            <ul>
+                                            {result.interview_questions?.map((s: string, i: number) => (
+                                                <li className="list-disc list-inside" key={i}>{s}</li>
+                                            ))}
+                                            </ul>
+                                        </>
+                                        )}
 
-                                    <button onClick={() => setShowRaw(!showRaw)} className="text-sm font-semibold mt-4 text-center text-gray-500 block w-full">Raw JSON (debug) <FontAwesomeIcon icon={faAngleDown} className={`ml-2 transition-all duration-500 ${showRaw ? "rotate-180" : ""}`}/></button>
-                                    <pre className={`whitespace-break-spaces text-sm text-gray-500 overflow-hidden transition-all duration-500 ease-in-out ${showRaw ? "h-96" : "h-0"}`}>{JSON.stringify(result, null, 2)}</pre>
-                                </div>
+                                        <button onClick={() => setShowRaw(!showRaw)} className="text-sm font-semibold mt-4 text-center text-gray-500 block w-full">Raw JSON (debug) <FontAwesomeIcon icon={faAngleDown} className={`ml-2 transition-all duration-500 ${showRaw ? "rotate-180" : ""}`}/></button>
+                                        <pre className={`whitespace-break-spaces text-sm text-gray-500 overflow-hidden transition-all duration-500 ease-in-out ${showRaw ? "h-96" : "h-0"}`}>{JSON.stringify(result, null, 2)}</pre>
+
+                                        
+                                    </div>
+                                    <button type="button" onClick={interviewStart} className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer col-span-2">Start Interview</button>
                                 </div>
                             )}
                         </form>
                     )}
-                    {/* { stage === 1 && (
+                    { questions.length !== 0 && (
                         <>
                             <div id="last-question">
                                 { !!score && 
@@ -246,24 +245,27 @@ export default function InterviewCopilotPage() {
                                         <p>{feedback}</p>
                                     </div>
                                 }
-                                { history.length !== 0 && 
-                                    <button className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer mt-8" type="button" onClick={() => finishInterview()}>
-                                        Finish Interview
-                                    </button>
-                                }
                             </div>
                            
                             <form id="interview-form" className="flex flex-col gap-4">
-                                <h2 className="text-xl mt-8">{question}</h2>
-                                <div className="flex flex-col gap-2 mt-8">
-                                    <label htmlFor="answer">Answer</label>
-                                    <textarea placeholder="Input your answer" name="answer" id="answer" className="w-full border-2 border-gray-300 rounded-md p-2" rows={10} required value={answer} onChange={(e) => setAnswer(e.target.value)} />
-                                </div>
-                                <button type="button" onClick={() => submitAnswer()} className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer">Answer</button>
+                                {!finish && (
+                                    <>
+                                        <h2 className="text-xl mt-8">{questions[currentIndex]}</h2>
+                                        <div className="flex flex-col gap-2 mt-8">
+                                            <label htmlFor="answer">Answer</label>
+                                            <textarea placeholder="Input your answer" name="answer" id="answer" className="w-full border-2 border-gray-300 rounded-md p-2" rows={10} required value={answer} onChange={(e) => setAnswer(e.target.value)} />
+                                        </div>
+                                    </>
+                                )}
+                                
+                                { hasNext ? 
+                                    <button type="button" onClick={() => submitAnswer()} className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer">Answer</button> : 
+                                    <button type="button" onClick={() => submitAnswer()} className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer">Finish Interview</button>
+                                }
                             </form>
                         </>
                     )}
-                    { stage === 2 && (
+                    {/* { stage === 2 && (
                         <div>
                             <h2 className="text-2xl font-bold">Interview End!</h2> 
                             <h3 className="text-lg font-semibold underline mt-8">Your Result:</h3>
