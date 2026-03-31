@@ -15,16 +15,15 @@ export default function Home() {
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-4">
               <div className="inline-flex w-fit items-center gap-2 rounded-full border border-gray-200 bg-white/60 px-4 py-1 text-sm text-gray-600 dark:border-gray-800 dark:bg-zinc-900/40 dark:text-gray-300">
-                AI-powered tools for interview prep
+                AI Career Toolkit
               </div>
 
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                AI Career Toolkit
+                Ace Your Technical Interviews with AI
               </h1>
 
               <p className="max-w-2xl text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-                AI-powered tools to help developers prepare for technical interviews. Practice interviews, analyze resumes,
-                and evaluate coding answers using LLMs.
+                Analyze your resume, simulate real interviews, and get personalized feedback — all in one place.
               </p>
             </div>
 
@@ -39,12 +38,14 @@ export default function Home() {
               <div className="rounded-2xl border border-blue-200 bg-linear-to-r from-blue-50 to-indigo-50 p-5 dark:border-blue-900/60 dark:from-blue-950/40 dark:to-indigo-950/40">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="text-xl font-semibold">Interview Copilot</h3>
+                    <h3 className="text-xl font-semibold">Start AI Interview Prep →</h3>
                     <p className="mt-1 text-gray-700 dark:text-gray-300">
                       End-to-end interview preparation.
                     </p>
+                    <div className="text-sm text-gray-400 gap-4 mt-4">
+                      No sign-up required. Try instantly.
+                    </div>
                   </div>
-
                   <a
                     href="/interview-copilot"
                     className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:hover:bg-blue-500"
@@ -58,6 +59,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+          
         </section>
 
         <section className="mt-10">
@@ -77,8 +79,7 @@ export default function Home() {
                 JD Resume Analyzer
               </h4>
               <div className="mt-3 text-gray-600 dark:text-gray-300">
-                Analyze how well your resume matches a job description. Identify missing skills and generate interview
-                questions.
+                Identify skill gaps from your resume
               </div>
             </a>
 
@@ -90,8 +91,7 @@ export default function Home() {
                 Interview Simulator
               </h4>
               <div className="mt-3 text-gray-600 dark:text-gray-300">
-                Practice technical interviews with an AI interviewer. Receive feedback, follow-up questions, and a final
-                evaluation.
+                Practice with AI-driven follow-up questions
               </div>
             </a>
 
@@ -103,7 +103,7 @@ export default function Home() {
                 Coding Interview Judge
               </h4>
               <div className="mt-3 text-gray-600 dark:text-gray-300">
-                Evaluate coding answers using AI. Use example to try the prototype.
+                Get feedback on coding answers
                 <div className="mt-2 inline-flex items-center rounded-full border border-gray-200 bg-white/60 px-3 py-1 text-xs font-medium text-gray-700 dark:border-gray-800 dark:bg-zinc-900/30 dark:text-gray-200">
                   Prototype
                 </div>
