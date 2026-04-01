@@ -1,108 +1,140 @@
 # AI Career Toolkit
 
-AI-powered tools that help developers prepare for technical interviews using LLMs.
+AI-powered interview preparation platform that helps developers go from job description analysis to simulated interviews and final evaluation.
 
-This project contains several AI-driven tools:
+---
 
-- Resume Analyzer
-- Interview Simulator
-- Coding Interview Judge (prototype)
+## 🔥 What makes this different?
 
-Built with Next.js and LLM APIs.
+Unlike typical interview tools, this system dynamically adapts interview questions based on the candidate’s answers and identified skill gaps.
 
-## Tools
-
-### 1️⃣ Resume Analyzer
-Analyze how well a resume matches a job description.
-
-Features:
-- AI resume analysis
-- Missing skills detection
-- Interview question generation
-
-### 2️⃣ Interview Simulator
-Simulate a technical interview using AI.
-
-The system:
-1. Generates interview questions
-2. Evaluates candidate answers
-3. Provides feedback and follow-up questions
-4. Gives a final interview evaluation
-
-### 3️⃣ Coding Interview Judge
-Prototype tool that evaluates coding interview answers using LLM reasoning.
-
-(Currently in development.)
-
-## Architecture
-The application uses LLM APIs to power several AI workflows:
-
-1. Resume Analysis
-Job Description + Resume → Skill analysis → Missing skills → Interview questions
-
-2. Interview Simulation
-Job Description → AI question → Candidate answer → AI evaluation → Next question
-
-3. Coding Interview Evaluation (Prototype)
-Coding problem + candidate solution → AI reasoning → Bug detection + score
-
-## Project Structure
-```
-app/
- ├ jd-resume-analyzer
- ├ interview-simulator
- ├ coding-interview
- ├ copilot
- ├ interview
- └ api
-     ├ analyze
-     ├ interview
-     ├ interview-contextual
-     ├ interview-start
-     ├ interview-turn
-     └ interview-finish
-````
-
-## 🛠 Tech Stack
-
-- Next.js (App Router)
-- React
-- OpenRouter / LLM API
-- Structured JSON prompting
-- Vercel deployment
+---
 
 ## 🚀 Live Demo
 
-https://jd-resume-match-analyzer.vercel.app/
+👉 https://jd-resume-match-analyzer.vercel.app/  
+(No sign-up required)
+
+---
+
+## 🧠 System Overview
+
+This project is designed as an end-to-end AI workflow:
+
+1. Analyze resume + job description → identify missing skills  
+2. Generate initial interview question  
+3. Conduct dynamic interview via iterative AI calls  
+4. Evaluate performance and generate structured report  
+
+The system continuously adapts the interview based on candidate performance, rather than using static question sets.
+
+---
+
+## 🎯 Core Features
+
+### 📄 Resume Analyzer
+Identify skill gaps between a resume and a job description.
+
+- AI resume analysis  
+- Missing skills detection  
+- Generates interview questions based on gaps  
+
+---
+
+### 🤖 Interview Copilot (Core Product)
+End-to-end interview preparation powered by AI.
+
+- Connects analysis → interview → evaluation  
+- Passes missing skills into interview flow  
+- Enables personalized interview experience  
+
+---
+
+### 🎯 Dynamic Interview Simulator
+Simulate a real technical interview with adaptive questioning.
+
+- AI evaluates each answer  
+- Generates follow-up questions dynamically  
+- Adjusts difficulty based on performance  
+- Maintains interview context across turns  
+
+---
+
+### 💻 Coding Interview Judge (Prototype)
+Evaluate coding interview answers using AI.
+
+- AI reasoning-based evaluation  
+- Detects issues and provides feedback  
+- 🚧 Prototype (in progress)  
+
+---
+
+## 🧠 Architecture
+
+The application uses LLM APIs to power multiple workflows:
+
+### 1️⃣ Resume Analysis
+Job Description + Resume  
+→ Skill analysis  
+→ Missing skills  
+→ Initial interview question  
+
+### 2️⃣ Dynamic Interview Flow
+Question  
+→ Candidate answer  
+→ AI evaluation  
+→ Next question (adaptive)  
+
+### 3️⃣ Coding Evaluation (Prototype)
+Coding problem + solution  
+→ AI reasoning  
+→ Bug detection + score  
+
+---
+
+## 🛠 Tech Stack
+
+- Next.js (App Router)  
+- React  
+- OpenRouter / LLM API  
+- Structured JSON prompting  
+- Vercel  
+
+---
+
+## 📁 Project Structure
+app/
+├ jd-resume-analyzer
+├ interview-simulator
+├ coding-interview
+├ copilot
+├ interview
+└ api
+├ analyze
+├ interview
+├ interview-contextual
+├ interview-start
+├ interview-turn
+└ interview-finish
 
 
-
-## 💻 Run Locally
-
-```bash
-git clone <your repo>
-cd <repo name>
-npm install
-npm run dev
-````
-
-Create `.env.local`:
-
-```
-OPENROUTER_API_KEY=your_key_here
-```
+---
 
 ## 🎯 Design Goals
 
-* Demonstrate safe integration of LLM APIs in a web app
-* Ensure predictable output formatting
-* Provide a live demo suitable for technical interviews
-* Keep the architecture simple and explainable
+- Design multi-step AI workflows (not single prompts)  
+- Ensure structured and predictable AI outputs  
+- Simulate real interview interactions  
+- Keep system simple but extensible  
+
+---
 
 ## ⚠️ Disclaimer
 
-AI suggestions are indicative and may not fully reflect hiring decisions.
+AI suggestions are indicative and may not fully reflect real hiring decisions.
+
+---
 
 ## 👤 Author
 
-Built as a personal project to explore practical LLM integration in production-style frontend/backend workflows. 
+Built as a personal project to explore practical LLM integration and product-level AI system design.
