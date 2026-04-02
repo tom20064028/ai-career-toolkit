@@ -170,10 +170,14 @@ export default function InterviewCopilotPage() {
                     "improvement_plan": []
                 };
             }
-            localStorage.setItem(
-                "lastReport",
-                JSON.stringify(parsed)
-            )
+            const existing = JSON.parse(localStorage.getItem("history") || "[]")
+            const updated = [...existing, parsed].slice(-5)
+
+            localStorage.setItem("history", JSON.stringify(updated))
+            // localStorage.setItem(
+            //     "lastReport",
+            //     JSON.stringify(parsed)
+            // )
             router.push("/report")
             setLoading(false);
         }).catch(err => {

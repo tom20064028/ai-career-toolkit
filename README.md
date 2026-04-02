@@ -103,19 +103,19 @@ Coding problem + solution
 ---
 
 ## 📁 Project Structure
-app/
-├ jd-resume-analyzer
-├ interview-simulator
-├ coding-interview
-├ copilot
-├ interview
-└ api
-├ analyze
-├ interview
-├ interview-contextual
-├ interview-start
-├ interview-turn
-└ interview-finish
+app/<br />
+├ jd-resume-analyzer<br />
+├ interview-simulator<br />
+├ coding-interview<br />
+├ copilot<br />
+├ interview<br />
+└ api<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ analyze<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ interview<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ interview-contextual<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ interview-start<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ interview-turn<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ interview-finish<br />
 
 
 ---

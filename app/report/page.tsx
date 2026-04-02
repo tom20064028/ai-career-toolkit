@@ -12,16 +12,20 @@ export default function ReportPage() {
 
     const router = useRouter();
     const [finalResult, setFinalResult] = useState<FinalResult | null>(null);
+    const [history, setHistory] = useState<FinalResult[]>([]);
 
     useEffect(() => {
-        const raw = localStorage.getItem("lastReport");
-        if (!raw) return;
+        const historyStorage = localStorage.getItem("history");
+        // const raw = localStorage.getItem("lastReport");
+        if (!historyStorage) return;
 
         try {
-            const parsed = JSON.parse(raw) as FinalResult;
+            const parsed = JSON.parse(historyStorage) as FinalResult[];
+
             // This is client-only state initialization from `localStorage`.
             // eslint-disable-next-line react-hooks/set-state-in-effect
-            setFinalResult(parsed);
+            setFinalResult(parsed[parsed.length - 1]);
+            setHistory(parsed.slice(0, -1));
         } catch (err) {
             console.error("Failed to parse lastReport from localStorage:", err);
         }
@@ -41,7 +45,7 @@ export default function ReportPage() {
                             Pratise your interview.
                         </p>
                     </div>
-                    {!!finalResult && (
+                    {!!finalResult ? (
                         <div>
                             <h2 className="text-2xl font-bold">Interview End!</h2> 
                             <h3 className="text-lg font-semibold underline mt-8">Your Result:</h3>
@@ -73,16 +77,33 @@ export default function ReportPage() {
                             )}
                             {finalResult.improvement_plan.length > 0 && (
                                 <>
-                                <h3 className="text-lg font-semibold mt-4">Improvement Plan</h3>
-                                <ul>
-                                    {finalResult.improvement_plan.map((s: string, i: number) => (
-                                    <li className="list-disc list-inside" key={i}>{s}</li>
-                                    ))}
-                                </ul>
+                                    <h3 className="text-lg font-semibold mt-4">Improvement Plan</h3>
+                                    <ul>
+                                        {finalResult.improvement_plan.map((s: string, i: number) => (
+                                        <li className="list-disc list-inside" key={i}>{s}</li>
+                                        ))}
+                                    </ul>
+                                </>
+                            )}
+                            {history.length > 0 && (
+                                <>
+                                    <h3 className="text-lg font-semibold mt-4">Previous Attempts</h3>
+                                    <ul>
+                                        {history.map((item, key) => (
+                                            <li className="list-disc list-inside" key={key}> Score: {item.overall_score}</li>
+                                        ))}
+                                    </ul>
                                 </>
                             )}
                             <button className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer mt-8" type="button" onClick={restartInterview}>
                                 Try Another Interview
+                            </button>
+                        </div>
+                    ) : (
+                        <div>
+                            <h2 className="text-2xl font-bold">No existing result</h2> 
+                            <button className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer mt-8" type="button" onClick={restartInterview}>
+                                Go interview
                             </button>
                         </div>
                     )}
