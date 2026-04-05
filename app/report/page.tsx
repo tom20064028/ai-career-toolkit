@@ -7,9 +7,14 @@ export default function ReportPage() {
         overall_score: number;
         summary: string;
         strengths: string[];
-        weaknesses: string[];
+        weaknesses: Weakness[],
         improvement_plan: string[];
     };
+
+    type Weakness = {
+        topic: string,
+        description: string
+    }
 
     const router = useRouter();
     const [finalResult, setFinalResult] = useState<FinalResult | null>(null);
@@ -34,6 +39,16 @@ export default function ReportPage() {
 
     const restartInterview = () => {
         router.push("/interview-copilot");
+    };
+
+    const restartInterviewWithFocus = () => {
+        if (!finalResult) router.push("/interview-copilot");
+        const result = finalResult as FinalResult;
+        router.push(
+            `/interview-copilot?focus=${encodeURIComponent(
+              JSON.stringify(result.weaknesses.map((item) => {return item.topic}))
+            )}`
+        )
     };
 
     return (
@@ -64,22 +79,22 @@ export default function ReportPage() {
                             }
                             {finalResult.strengths.length > 0 && (
                                 <>
-                                <h3 className="text-lg font-semibold mt-4">Strengths</h3>
-                                <ul>
-                                    {finalResult.strengths.map((s: string, i: number) => (
-                                    <li className="list-disc list-inside" key={i}>{s}</li>
-                                    ))}
-                                </ul>
+                                    <h3 className="text-lg font-semibold mt-4">Strengths</h3>
+                                    <ul>
+                                        {finalResult.strengths.map((s: string, i: number) => (
+                                        <li className="list-disc list-inside" key={i}>{s}</li>
+                                        ))}
+                                    </ul>
                                 </>
                             )}
                             {finalResult.weaknesses.length > 0 && (
                                 <>
-                                <h3 className="text-lg font-semibold mt-4">Weaknesses</h3>
-                                <ul>
-                                    {finalResult.weaknesses.map((s: string, i: number) => (
-                                    <li className="list-disc list-inside" key={i}>{s}</li>
-                                    ))}
-                                </ul>
+                                    <h3 className="text-lg font-semibold mt-4">Weaknesses</h3>
+                                    <ul>
+                                        {finalResult.weaknesses.map((s: Weakness, i: number) => (
+                                            <li className="list-disc list-inside" key={i}>{s.topic} – {s.description}</li>
+                                        ))}
+                                    </ul>
                                 </>
                             )}
                             {finalResult.improvement_plan.length > 0 && (
@@ -104,6 +119,9 @@ export default function ReportPage() {
                             )}
                             <button className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer mt-8" type="button" onClick={restartInterview}>
                                 Try Another Interview
+                            </button>
+                            <button className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer mt-8" type="button" onClick={restartInterviewWithFocus}>
+                                Practice Again (Focus on Weak Areas)
                             </button>
                         </div>
                     ) : (

@@ -6,30 +6,32 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faAngleDown } from "@fortawesome/free-solid-svg-icons";
 
-function QuestionsFromSearchParams({ onSetQuestions }: { onSetQuestions: (qs: string[]) => void }) {
+function QuestionsFromSearchParams({ onSetFocus, focusAreas }: { onSetFocus: (qs: string[]) => void, focusAreas: string[] }) {
     const searchParams = useSearchParams();
-    const questionsParam = searchParams.get("questions");
+    // const questionsParam = searchParams.get("questions");
+    const focusParam = searchParams.get("focus")
 
     useEffect(() => {
-        if (!questionsParam) {
-            onSetQuestions([]);
+        if (!focusParam) {
+            onSetFocus([])
             return;
         }
 
         try {
-            const decoded = decodeURIComponent(questionsParam);
+            const decoded = decodeURIComponent(focusParam);
             const parsed = JSON.parse(decoded);
-            onSetQuestions(Array.isArray(parsed) ? parsed : []);
+            onSetFocus(Array.isArray(parsed) ? parsed : focusAreas);
         } catch {
-            onSetQuestions([]);
+            onSetFocus([]);
         }
-    }, [questionsParam, onSetQuestions]);
+    }, [focusParam, onSetFocus]);
 
     return null;
 }
 
 export default function InterviewCopilotPage() {
     const router = useRouter()
+    
 
     type HistoryItem = {
         question: string;
@@ -42,16 +44,20 @@ export default function InterviewCopilotPage() {
         overall_score: number,
         summary: string,
         strengths: string[],
-        weaknesses: string[],
+        weaknesses: Weakness[],
         improvement_plan: string[]
     };
+
+    type Weakness = {
+        topic: string,
+        description: string
+    }
 
     const [jd, setJd] = useState("")
     const [resume, setResume] = useState("")
 
     const [result, setResult] = useState<any>(null)
     const [loading, setLoading] = useState(false);
-    const [question, setQuestion] = useState("")
     const [answer, setAnswer] = useState("")
     const [score, setScore] = useState(0)
     const [feedback, setFeedback] = useState("")
@@ -59,47 +65,46 @@ export default function InterviewCopilotPage() {
     const [questions, setQuestions] = useState<string[]>([])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [finish, setFinish] = useState(false)
+    const [focusAreas, setFocusAreas] = useState<string[]>([])
+    const [currentFocus, setCurrentFocus] = useState<string>("")
+    const [questionCount, setQuestionCount] = useState(0)
 
     const [history, setHistory] = useState<HistoryItem[]>([])
     const [finalResult, setFinalResult] = useState<FinalResult | null>(null)
+    const hasNext = currentIndex < questions.length - 1
 
-    useEffect(() => {
-        const form = document.querySelector("form");
-        form?.addEventListener("submit", (e) => {
-            e.preventDefault();
-            setLoading(true);
-            const formData = new FormData(form);
-            const jd = formData.get("jd");
-            const resume = formData.get("resume");
-            fetch("/api/interview-copilot", {
-                method: "POST",
-                body: JSON.stringify({ jd, resume }),
-            }).then(res => res.json()).then(data => {
-                let parsed;
+    const analyze = () => {
+        setLoading(true);
+        fetch("/api/interview-copilot", {
+            method: "POST",
+            body: JSON.stringify({ jd, resume, focusAreas }),
+        }).then(res => res.json()).then(data => {
+            let parsed;
 
-                try {
+            try {
                 parsed = JSON.parse(data.raw);
-                } catch {
+            } catch {
                 parsed = {
                     match_score: 0,
                     missing_skills: [],
                     interview_questions: ["Invalid JSON from model"]
                 };
-                }
-                setResult(parsed);
-                setLoading(false);
-            }).catch(err => {
-                console.error(err);
-                setLoading(false);
-            });
+            }
+            setResult(parsed);
+            if (focusAreas.length === 0) {
+                setFocusAreas(parsed.missing_skills)
+            }
+        }).catch(err => {
+            console.error(err); 
+        }).finally(() => {
+            setLoading(false);
         });
-    }, []);
-
-    const hasNext = currentIndex < questions.length - 1
+    }
 
     const interviewStart = () => {
-        const questionsParam = encodeURIComponent(JSON.stringify(result.interview_questions))
-        router.push(`/interview-copilot?questions=${questionsParam}`)
+        setQuestions(result.interview_questions)
+        console.log(currentFocus)
+        setCurrentFocus(focusAreas.length > 1 ? focusAreas[0] : "")
     }
 
     const submitAnswer = () => {
@@ -109,7 +114,7 @@ export default function InterviewCopilotPage() {
         const answer = formData.get("answer");
         fetch("/api/interview-turn", {
             method: "POST",
-            body: JSON.stringify({ question: questions[currentIndex], answer, history }),
+            body: JSON.stringify({ question: questions[currentIndex], answer, history, focusAreas: focusAreas.length > 0 ? focusAreas : result.missing_skills, currentFocus }),
         }).then(res => res.json()).then(data => {
             let parsed;
     
@@ -119,13 +124,14 @@ export default function InterviewCopilotPage() {
                 parsed = {
                     score: 0,
                     feedback: "",
-                    next_question: ""
+                    next_question: "",
+                    next_focus: ""
                 };
             }
             setHistory(prev => [
                 ...prev,
                 {
-                    question,
+                    question: questions[currentIndex],
                     answer: String(answer ?? ""),
                     score: parsed.score,
                     feedback: parsed.feedback,
@@ -133,6 +139,7 @@ export default function InterviewCopilotPage() {
             ])
             setScore(parsed.score)
             setFeedback(parsed.feedback)
+            setCurrentFocus(parsed.next_focus)
             // setQuestion(parsed.next_question);
             if (hasNext) {
                 setCurrentIndex(currentIndex + 1)
@@ -192,7 +199,7 @@ export default function InterviewCopilotPage() {
         <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
             <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start relative">
                 <Suspense fallback={null}>
-                    <QuestionsFromSearchParams onSetQuestions={setQuestions} />
+                    <QuestionsFromSearchParams onSetFocus={setFocusAreas} focusAreas={focusAreas} />
                 </Suspense>
                 <div className="flex flex-col gap-4 w-full">
                     <div className="flex flex-col gap-2">
@@ -212,7 +219,7 @@ export default function InterviewCopilotPage() {
                                 <textarea name="resume" id="resume" className="w-full border-2 border-gray-300 rounded-md p-2" rows={10} required value={resume} onChange={(e) => setResume(e.target.value)} />
                             </div>
                             <div className="grid grid-cols-2 gap-2 w-full">
-                                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer col-span-2">Start</button>
+                                <button type="button" onClick={analyze} className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer col-span-2">Start</button>
                                 {/* <button className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer" type="button" onClick={() => setJd(exampleJD)}>
                                     Use example
                                 </button> */}

@@ -13,13 +13,12 @@ const client = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    // return Response.json({ raw: '{\n  \"score\": 75,\n  \"missing_skills\": [\n    \"Dockerisation\",\n    \"Machine Learning\",\n    \"GitLab CI/CD\",\n    \"Déploiement dockerisé sur un orchestrateur\",\n    \"API Rest (specific mention in JD)\",\n    \"Conception technico/fonctionnelle\",\n    \"Mise en œuvre de POC\",\n    \"Élaboration de stratégie de développement\",\n    \"Documentation technique automatisée\"\n  ],\n  \"rewrite_suggestions\": [\n    \"Highlight experience with Docker and containerization technologies.\",\n    \"Include any experience with machine learning or related technologies.\",\n    \"Mention familiarity with GitLab CI/CD for continuous integration and deployment.\",\n    \"Detail any experience with orchestrators for Docker deployments.\",\n    \"Clarify experience with API Rest, specifically in the context of the job description.\",\n    \"Add examples of participation in technical and functional design.\",\n    \"Include any experience with proof of concept (POC) implementations.\",\n    \"Discuss any strategies developed for software development.\",\n    \"Mention experience in writing technical documentation.\"\n  ]\n}' });
-    const { jd, resume } = await req.json();
+    const { jd, resume, focusAreas } = await req.json();
 
     const completion = await client.chat.completions.create({
       model: "openai/gpt-4o-mini", // 例子：你可換其他 OpenRouter model
       messages: [
-        { role: "system", content: 'You are an AI career coach.\n\nGiven a job description and a resume, analyze the candidate\'s readiness for the role.\n\nReturn ONLY JSON:\n{\n"match_score": number,\n"missing_skills": string[],\n"interview_questions": string[]\n}' },
+        { role: "system", content: `You are an AI career coach.\n\nGiven a job description and a resume, analyze the candidate\'s readiness for the role.\n\nReturn ONLY JSON:\n{\n"match_score": number,\n"missing_skills": string[],\n"interview_questions": string[]\n}\n\nInterview questions focus more on these weak areas:\n${focusAreas.join(", ")}` },
         {
           role: "user",
           content:

@@ -13,16 +13,16 @@ const client = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const { question, answer, history, missing_skills } = await req.json();
+    const { question, answer, history, focusAreas, currentFocus } = await req.json();
 
     const completion = await client.chat.completions.create({
       model: "openai/gpt-4o-mini", // 例子：你可換其他 OpenRouter model
       messages: [
-        { role: "system", content: `You are a senior technical interviewer.\n\nYou are conducting a dynamic interview.\n\nGoals:\n- Evaluate the candidate\'s answer\n- Identify strengths and weaknesses\n- Ask a relevant follow-up question\n- Focus more on the candidate\'s missing skills\n\nImportant:\n- Avoid repeating previous questions\n- Ask deeper or related follow-up questions\n- If the candidate is weak, simplify or probe fundamentals\n- If the candidate is strong, increase difficulty\n\nFocus on these missing skills:\n${missing_skills}\n\nReturn ONLY JSON:\n\n{\n"score": number,\n"feedback": string,\n"next_question": string\n}\n\nScore should be between 1 and 10.\n\nKeep feedback concise (max 2 sentences).` },
+        { role: "system", content: `You are a senior technical interviewer conducting a dynamic interview.\n\nFocus areas for this interview:\n${focusAreas.join(", ")}\n\nThe current focus area is:\n${currentFocus}\n\nInstructions:\n- Evaluate the candidate's answer\n- Provide concise feedback\n- Ask a follow-up question related to the current focus area\n- Usually stay within the same focus area\n- Only move to another focus area if the candidate shows strong understanding or the topic is sufficiently explored\n- Avoid repeating previous questions\n- Adjust difficulty based on candidate performance\n\nReturn ONLY JSON:\n\n{\n  "score": number,\n  "feedback": string,\n  "next_question": string,\n  "next_focus": string\n}\n\n"next_focus" must be one of the focus areas.` },
         {
           role: "user",
           content:
-            `Interview History:\n${history}\n\nCurrent Question:\n${question}\n\nCandidate Answer:\n${answer}`
+            `Focus Areas:\n${focusAreas.join(", ")}\n\nInterview History:\n${history}\n\nCurrent Question:\n${question}\n\nCandidate Answer:\n${answer}`
         },
       ],
       temperature: 0.2,
